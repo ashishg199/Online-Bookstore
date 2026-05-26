@@ -1,7 +1,27 @@
-export const API_URL = "http://localhost:5000";
+const API_URL =
+  "http://localhost:5000";
 
-export const fetchData = async (url, options = {}) => {
-  const res = await fetch(`${API_URL}${url}`, options);
-  if (!res.ok) throw new Error("API Error");
-  return res.json();
-};
+export const fetchData =
+  async (
+    url,
+    options = {}
+  ) => {
+    const response =
+      await fetch(
+        `${API_URL}${url}`,
+        options
+      );
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message
+      );
+    }
+
+    return data;
+  };
+
+export default API_URL;

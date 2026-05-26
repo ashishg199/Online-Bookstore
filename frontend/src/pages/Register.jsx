@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Register() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  
+
   // State for form inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,13 +22,14 @@ export default function Register() {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        login(data.token);
+        login(data.token, data.role, data.user);
+
         navigate("/");
       } else {
         setError(data.message || "Registration failed. Try a different email.");
@@ -46,7 +47,9 @@ export default function Register() {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
-          <p className="text-gray-500 mt-2">Join our bookstore community today</p>
+          <p className="text-gray-500 mt-2">
+            Join our bookstore community today
+          </p>
         </div>
 
         {error && (
@@ -58,7 +61,9 @@ export default function Register() {
         <form onSubmit={handleRegister} className="space-y-5">
           {/* Name Field - Added for Register */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Full Name
+            </label>
             <input
               type="text"
               required
@@ -70,7 +75,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Email Address
+            </label>
             <input
               type="email"
               required
@@ -82,7 +89,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Password
+            </label>
             <input
               type="password"
               required
@@ -97,8 +106,8 @@ export default function Register() {
             type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-xl font-bold text-white transition-all transform active:scale-[0.98] ${
-              loading 
-                ? "bg-indigo-400 cursor-not-allowed" 
+              loading
+                ? "bg-indigo-400 cursor-not-allowed"
                 : "bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100"
             }`}
           >
@@ -109,7 +118,10 @@ export default function Register() {
         {/* Login Redirect */}
         <p className="text-center text-gray-600 mt-8 text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-indigo-600 font-bold hover:underline">
+          <Link
+            to="/login"
+            className="text-indigo-600 font-bold hover:underline"
+          >
             Log in
           </Link>
         </p>

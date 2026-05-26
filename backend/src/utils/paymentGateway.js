@@ -1,57 +1,135 @@
-const express = require('express');
-const Razorpay = require('razorpay');
-const crypto = require('crypto')
-require('dotenv').config();
-const Order = require('../models/orderModel');
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
+const Order = require("../models/orderModel");
 
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET
+});
 
-exports.createPayment = async (req, res) => {
-  console.log('req::: ', req.body);
+exports.createPayment = async (
+  req,
+  res
+) => {
   try {
-    const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_SECRET
-    });
+    const {
+      amount,
+      items,
+      shippingAddress
+    } = req.body;
 
     const options = {
-      amount: req.body?.amount, // amount in the smallest currency unit (e.g., paise for INR)
-      currency: req.body?.currency || "INR",
-      receipt: req.body?.receipt || `receipt_order_${Date.now()}`,
-      payment_capture: 1
+      amount: Number(amount),
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`
     };
 
-    const order = await razorpay.orders.create(options); 
+    const razorpayOrder =
+      await razorpay.orders.create(
+        options
+      );
 
-    if (!order) {
-      return res.status(500).send("Error creating order");
-    }
-    await Order.create({ _id: req.body?.orderId }, { paymentId: order.id });
-    res.json(order);
+    const order =
+      await Order.create({
+        userId: req.user.id,
+
+        items,
+
+        totalAmount:
+          amount / 100,
+
+        shippingAddress,
+
+        paymentId:
+          razorpayOrder.id,
+
+        paymentStatus:
+          "pending",
+
+        orderStatus:
+          "pending"
+      });
+
+    res.status(200).json({
+      success: true,
+
+      razorpayOrder,
+
+      orderId: order._id
+    });
   } catch (error) {
-    console.error(error); 
-    return res.status(500).send("Server error");
+    res.status(500).json({
+      success: false,
+      message:
+        error.message
+    });
   }
 };
 
+exports.verifyPayment =
+  async (req, res) => {
+    try {
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        orderId
+      } = req.body;
 
-exports.validatePayment = async(req, res)=>{
- 
-  console.log(' req.body::: ',  req.body);
-  const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
+      const generatedSignature =
+        crypto
+          .createHmac(
+            "sha256",
+            process.env
+              .RAZORPAY_SECRET
+          )
+          .update(
+            `${razorpay_order_id}|${razorpay_payment_id}`
+          )
+          .digest("hex");
 
-  const sha = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET);
-  
-  sha.update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      if (
+        generatedSignature !==
+        razorpay_signature
+      ) {
+        return res
+          .status(400)
+          .json({
+            success:
+              false,
+            message:
+              "Payment verification failed"
+          });
+      }
 
-  const digest = sha.digest('hex');
-  if(digest !== razorpay_signature){
-    return res.status(400).json({msg:"Transaction is Invalid!"})
-  }
-  res.json({
-    msg:"success",
-    order_id : razorpay_order_id,
-    payment_id : razorpay_payment_id
-  })
+      const order =
+        await Order.findByIdAndUpdate(
+          orderId,
+          {
+            paymentStatus:
+              "paid",
 
-};
+            orderStatus:
+              "processing",
+
+            paymentId:
+              razorpay_payment_id
+          },
+          { new: true }
+        );
+
+      res.json({
+        success: true,
+        message:
+          "Payment successful",
+        order
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message:
+          error.message
+      });
+    }
+  };

@@ -28,8 +28,13 @@ export default function Login() {
 
       if (res.ok) {
         // returns { token: "...", role: "admin" }
-        login(data.token, data.role);
-        navigate("/");
+        login(data.token, data.role, data.user);
+
+        if (data.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
       } else {
         setError(data.message || "Invalid credentials. Please try again.");
       }

@@ -8,23 +8,33 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchData("/api/books")
-      .then((data) => {
-        console.log("data::: ", data);
-        setBooks(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    fetchBooks();
   }, []);
 
-  const filteredBooks = books.filter(
-    (b) =>
-      b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (b.author && b.author.toLowerCase().includes(searchTerm.toLowerCase())),
-  );
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchBooks(searchTerm);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
+
+  const fetchBooks = async (search = "") => {
+    try {
+      setLoading(true);
+
+      const data = await fetchData(`/api/books?search=${search}`);
+
+      setBooks(data.books || []);
+
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+
+      setBooks([]);
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-white min-h-screen">
@@ -46,7 +56,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-gray-800">Featured Books</h2>
           <span className="text-sm text-gray-500 font-medium">
-            {filteredBooks.length} Books Found
+            {books.length} Books Found
           </span>
           {/* Search Box */}
           <div className="relative w-64">
@@ -88,7 +98,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-            {filteredBooks.map((b) => (
+            {books.map((b) => (
               <Link
                 key={b._id}
                 to={`/books/${b.bookId}`}
