@@ -51,7 +51,7 @@ export default function Navbar() {
                   Dashboard
                 </Link>
 
-                <Link
+                {/* <Link
                   to="/admin"
                   className="text-gray-600 hover:text-indigo-600 font-medium transition"
                 >
@@ -63,7 +63,7 @@ export default function Navbar() {
                   className="text-gray-600 hover:text-indigo-600 font-medium transition"
                 >
                   Orders
-                </Link>
+                </Link> */}
               </>
             )}
           </div>

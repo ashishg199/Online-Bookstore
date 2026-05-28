@@ -70,14 +70,14 @@ export default function ManageBooks() {
 
                   <td className="p-4 flex gap-3">
                     <Link
-                      to={`/admin/edit-book/${book._id}`}
+                      to={`/admin/edit-book/${book.bookId}`}
                       className="bg-yellow-500 text-white px-4 py-2 rounded"
                     >
                       Edit
                     </Link>
 
                     <button
-                      onClick={() => deleteBook(book._id)}
+                      onClick={() => deleteBook(book.bookId)}
                       className="bg-red-500 text-white px-4 py-2 rounded"
                     >
                       Delete
