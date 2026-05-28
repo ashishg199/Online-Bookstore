@@ -55,8 +55,10 @@ npm run dev
 
 Frontend will run on:
 
-http://localhost:5173
+http://localhost:3000
+
 ✨ Features
+
 👤 User Features
 User Registration
 User Login & Authentication
@@ -66,6 +68,7 @@ Add to Cart
 Place Orders
 View Order History
 Update Profile
+
 🛠️ Admin Features
 Admin Login
 Add Books
@@ -73,12 +76,16 @@ Update Books
 Delete Books
 Manage Users
 Manage Orders
+
 📡 API Endpoints
+
 🔐 Authentication APIs
+
 Method	Endpoint	Description
 POST	/api/auth/register	Register User
 POST	/api/auth/login	Login User
 POST	/api/auth/admin-login	Admin Login
+
 📚 Book APIs
 Method	Endpoint	Description
 GET	/api/books	Get All Books
@@ -86,16 +93,19 @@ GET	/api/books/:id	Get Single Book
 POST	/api/books	Add New Book
 PUT	/api/books/:id	Update Book
 DELETE	/api/books/:id	Delete Book
+
 🛒 Cart APIs
 Method	Endpoint	Description
 GET	/api/cart	Get Cart Items
 POST	/api/cart/add	Add Item to Cart
 DELETE	/api/cart/:id	Remove Cart Item
+
 📦 Order APIs
 Method	Endpoint	Description
 POST	/api/orders	Place Order
 GET	/api/orders/my-orders	Get User Orders
 GET	/api/orders	Get All Orders (Admin)
+
 👥 User APIs
 Method	Endpoint	Description
 GET	/api/users/profile	Get User Profile
